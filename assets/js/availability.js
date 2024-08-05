@@ -128,15 +128,14 @@ function loadAvailabilities(page = 1, search = '') {
         url: '../api/availabilities/get.php',
         method: 'GET',
         success: function(response) {
-            const res = JSON.parse(response);
-            if (res.status === 'success') {
-                const availabilities = res.data;
+            if (response.status === 'success') {
+                const availabilities = response.data;
                 let html = '';
                 availabilities.forEach(function(availability) {
                     html += `
                             <tr>
                                 <td>${availability.date}</td>
-                                <td>${JSON.parse(availability.time).join(', ')}</td>
+                                <td>${formatTime(availability.time).join(', ')}</td>
                                 <td>
                                     <button class="btn btn-primary btn-sm editAvailabilityBtn" data-id="${availability.id}">Edit</button>
                                     <button class="btn btn-danger btn-sm deleteAvailabilityBtn" data-id="${availability.id}">Delete</button>
@@ -148,4 +147,10 @@ function loadAvailabilities(page = 1, search = '') {
             }
         }
     });
+}
+
+function formatTime(hour) {
+    return hour.map(function (hour) {
+        return hour < 10 ? '0' + hour + ':00' : hour + ':00'
+    })
 }

@@ -27,6 +27,36 @@ class AvailabilityController extends Controller
         }
     }
 
+    public function getTime($date)
+    {
+        try {
+            $availability = $this->availability->getTimeByDate($date);
+
+            return [
+                'status' => 'success',
+                'data' => $availability,
+            ];
+
+        } catch (Exception $e) {
+            return ['status' => 'error', 'message' => $e->getMessage()];
+        }
+    }
+
+    public function getDate($date)
+    {
+        try {
+            $availability = $this->availability->getDates($date);
+
+            return [
+                'status' => 'success',
+                'data' => $availability,
+            ];
+
+        } catch (Exception $e) {
+            return ['status' => 'error', 'message' => $e->getMessage()];
+        }
+    }
+
     public function create(): array
     {
         try {

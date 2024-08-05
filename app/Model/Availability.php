@@ -7,6 +7,10 @@ class Availability extends Model {
     // Add a new availability
     public function create($date, $time) {
         $stmt = $this->prepare("INSERT INTO {$this->table} (date, time) VALUES (?, ?)");
+
+        $time = array_map(function($val) {
+            return intval($val);
+        }, $time);
         $jsonTimes = json_encode($time);
         $stmt->bind_param('ss', $date, $jsonTimes);
 
@@ -23,23 +27,38 @@ class Availability extends Model {
 
         $availabilities = [];
         while ($row = $result->fetch_assoc()) {
+            // Convert the JSON string to an array
+            $row['time'] = json_decode($row['time'], true);
             $availabilities[] = $row;
         }
 
         return $availabilities;
     }
 
-    public function getTimeByDate($date) {
+    public function getTimeByDate($date): array
+    {
         $result = $this->query("SELECT time FROM {$this->table} WHERE `date` = '$date'");
 
         $availabilities = [];
         while ($row = $result->fetch_assoc()) {
-            $availabilities[] = $row['time'];
+            $availabilities[] = json_decode($row['time'], true);
         }
 
         return $availabilities;
     }
 
+    public function getDates($date): array
+    {
+        $today = date("Y-m-d");
+        $result = $this->query("SELECT date FROM {$this->table} WHERE `date` > '$today'");
+
+        $availabilities = [];
+        while ($row = $result->fetch_assoc()) {
+            $availabilities[] = $row['date'];
+        }
+
+        return $availabilities;
+    }
     // Update an availability
     public function update($id, $date, $times)
     {

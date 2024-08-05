@@ -1,25 +1,34 @@
 let availableDates = ["2024-09-05", "2024-10-06", "2024-08-10", "2024-08-15"];
 let selectedDate = '';
 document.addEventListener('DOMContentLoaded', function() {
-    hjsCalendar(availableDates, function(confirmTime) {
-        selectedDate = confirmTime;
-        // Set selected date and time
-        document.getElementById('selectedDate').value = confirmTime;
-        // document.getElementById('selectedTime').value = confirmTime.time;
+    $.ajax({
+        type: 'GET',
+        url: 'api/availabilities/getDate.php',
+        success: function(response) {
+            hjsCalendar(response.data, function(confirmTime) {
+                selectedDate = confirmTime;
+                // Set selected date and time
+                document.getElementById('selectedDate').value = confirmTime;
 
-        // Show the form
-        document.getElementById('appointmentForm').classList.remove('d-none');
-        // Enable the "Next" button
-        document.getElementById('next-to-details').disabled = false;
+                // Show the form
+                document.getElementById('appointmentForm').classList.remove('d-none');
+                // Enable the "Next" button
+                document.getElementById('next-to-details').disabled = false;
 
-        if (selectedDate) {
-            document.getElementById('selectedDate').value = selectedDate;
-            let tabTrigger = new bootstrap.Tab(document.querySelector('#enter-details-tab'));
-            tabTrigger.show();
-        } else {
-            toastr.warning('Please select a date and time.');
+                if (selectedDate) {
+                    document.getElementById('selectedDate').value = selectedDate;
+                    let tabTrigger = new bootstrap.Tab(document.querySelector('#enter-details-tab'));
+                    tabTrigger.show();
+                } else {
+                    toastr.warning('Please select a date and time.');
+                }
+            });
+        },
+        error: function(response) {
+            toastr.error('Failed to create appointment.');
         }
     });
+
 
     // Handle form submission
     $('#submit-appointment').on('click', function(e) {

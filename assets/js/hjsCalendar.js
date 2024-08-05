@@ -129,7 +129,7 @@ function hjsCalendar(availableDates = [], handleEvent) {
         let sundays = getSundays(currentYear, currentMonth);
         dayElements.forEach(dayElement => {
             dayElement.addEventListener("click", event => {
-                let hours;
+                var hours = [];
                 if (sundays.indexOf(Number(dayElement.textContent)) !== -1) {
                     console.log("This is Sunday");
                 } else {
@@ -146,73 +146,50 @@ function hjsCalendar(availableDates = [], handleEvent) {
                             meetingTimingsHTML = "",
                             disabled = "",
                             disabledClass = "";
-                        hours = [8, 10, 13, 20];
                         const sDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${selectedDay.padStart(2, '0')}`;
                         $.ajax({
-                            url: '../api/appointments/getTime.php',
+                            url: 'api/availabilities/getTime.php',
                             method: 'GET',
-                            data: { page: page, limit: limit, search: search },
+                            data: { date: sDate },
                             success: function(response) {
                                 if (response.status === 'success') {
-                                    displayAppointments(response.data);
-                                    setupPagination(response.total, response.page, response.limit);
+                                    if(hours.length < 1){
+                                        hours = [9,10,11,12,13,14,15,16];
+                                    }
+                                    hours.forEach((hour) => {
+                                        if (new Date(currentYear, currentMonth, selectedDay, hour, 0, 0, 0).getTime() < Date.now()) {
+                                            disabled = "disabled";
+                                            disabledClass = "btnDisable";
+                                        } else {
+                                            disabled = "";
+                                            disabledClass = "";
+                                        }
+                                        let timeString = new Date(currentYear, currentMonth, selectedDay, hour, 0, 0, 0).toLocaleString("en-GB", {
+                                            hour12: true,
+                                            hour: "numeric",
+                                            minute: "numeric"
+                                        });
+                                        if (events[new Date(currentYear, currentMonth, selectedDay, hour).toJSON()] > 2) {
+                                            meetingTimingsHTML += `<div class="button-full" id="prepTime_${hour}">
+                                                <button class="event-time meeting btnDisable" disabled>${hour === 12 ? "12:00 pm" : timeString}</button>
+                                            </div>`;
+                                        } else {
+                                            meetingTimingsHTML += `<div class="button-full" id="prepTime_${hour}">
+                                                <button onclick="meetTime('prepTime_${hour}')" class="event-time meeting ${disabledClass}" ${disabled}>${hour === 12 ? "12:00 pm" : timeString}</button>
+                                                <button onclick="confirmMeeting('${new Date(currentYear, currentMonth, selectedDay, hour, 0, 0, 0).toJSON()}')" class="confirm-btn">Confirm</button>
+                                            </div>`;
+                                        }
+                                    })
+
+                                    meetingTimingsElement.innerHTML = meetingTimingsHTML;
                                 } else {
-                                    toastr.error('Failed to fetch appointments')
+                                    toastr.error('Failed to fetch time')
                                 }
                             },
                             error: function() {
-                                toastr.error('An error occurred while fetching appointments');
+                                toastr.error('An error occurred while fetching time');
                             }
                         });
-                        hours.forEach((hour) => {
-                            if (new Date(currentYear, currentMonth, selectedDay, hour, 0, 0, 0).getTime() < Date.now()) {
-                                disabled = "disabled";
-                                disabledClass = "btnDisable";
-                            } else {
-                                disabled = "";
-                                disabledClass = "";
-                            }
-                            let timeString = new Date(currentYear, currentMonth, selectedDay, hour, 0, 0, 0).toLocaleString("en-GB", {
-                                hour12: true,
-                                hour: "numeric",
-                                minute: "numeric"
-                            });
-                            if (events[new Date(currentYear, currentMonth, selectedDay, hour).toJSON()] > 2) {
-                                meetingTimingsHTML += `<div class="button-full" id="prepTime_${hour}">
-                                    <button class="event-time meeting btnDisable" disabled>${hour === 12 ? "12:00 pm" : timeString}</button>
-                                </div>`;
-                            } else {
-                                meetingTimingsHTML += `<div class="button-full" id="prepTime_${hour}">
-                                    <button onclick="meetTime('prepTime_${hour}')" class="event-time meeting ${disabledClass}" ${disabled}>${hour === 12 ? "12:00 pm" : timeString}</button>
-                                    <button onclick="confirmMeeting('${new Date(currentYear, currentMonth, selectedDay, hour, 0, 0, 0).toJSON()}')" class="confirm-btn">Confirm</button>
-                                </div>`;
-                            }
-                        })
-                        // for (let hour = 8; hour < 21; hour++) {
-                        //     if (new Date(currentYear, currentMonth, selectedDay, hour, 0, 0, 0).getTime() < Date.now()) {
-                        //         disabled = "disabled";
-                        //         disabledClass = "btnDisable";
-                        //     } else {
-                        //         disabled = "";
-                        //         disabledClass = "";
-                        //     }
-                        //     let timeString = new Date(currentYear, currentMonth, selectedDay, hour, 0, 0, 0).toLocaleString("en-GB", {
-                        //         hour12: true,
-                        //         hour: "numeric",
-                        //         minute: "numeric"
-                        //     });
-                        //     if (events[new Date(currentYear, currentMonth, selectedDay, hour).toJSON()] > 2) {
-                        //         meetingTimingsHTML += `<div class="button-full" id="prepTime_${hour}">
-                        //             <button class="event-time meeting btnDisable" disabled>${hour === 12 ? "12:00 pm" : timeString}</button>
-                        //         </div>`;
-                        //     } else {
-                        //         meetingTimingsHTML += `<div class="button-full" id="prepTime_${hour}">
-                        //             <button onclick="meetTime('prepTime_${hour}')" class="event-time meeting ${disabledClass}" ${disabled}>${hour === 12 ? "12:00 pm" : timeString}</button>
-                        //             <button onclick="confirmMeeting('${new Date(currentYear, currentMonth, selectedDay, hour, 0, 0, 0).toJSON()}')" class="confirm-btn">Confirm</button>
-                        //         </div>`;
-                        //     }
-                        // }
-                        meetingTimingsElement.innerHTML = meetingTimingsHTML;
                     }
                 }
             });
