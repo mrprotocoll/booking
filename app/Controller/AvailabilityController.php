@@ -42,10 +42,10 @@ class AvailabilityController extends Controller
         }
     }
 
-    public function getDate($date)
+    public function getDate()
     {
         try {
-            $availability = $this->availability->getDates($date);
+            $availability = $this->availability->getDate();
 
             return [
                 'status' => 'success',

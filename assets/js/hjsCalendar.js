@@ -153,6 +153,7 @@ function hjsCalendar(availableDates = [], handleEvent) {
                             data: { date: sDate },
                             success: function(response) {
                                 if (response.status === 'success') {
+                                    hours = response.data;
                                     if(hours.length < 1){
                                         hours = [9,10,11,12,13,14,15,16];
                                     }

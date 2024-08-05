@@ -6,12 +6,8 @@ use App\Controller\AvailabilityController;
 header('Content-Type: application/json');
 
 try {
-    $date = $_GET['date'];
-    if(!isset($_GET['date'])){
-        echo json_encode(['status' => 'error', 'message' => "Date not provided"]);
-    }
     $availability = new AvailabilityController();
-    $response = $availability->getDate($date);
+    $response = $availability->getDate();
     echo json_encode($response);
 }
 catch (Exception $e) {

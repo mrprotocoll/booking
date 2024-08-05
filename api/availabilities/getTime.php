@@ -9,6 +9,7 @@ try {
     $date = $_GET['date'];
     if(!isset($_GET['date'])){
         echo json_encode(['status' => 'error', 'message' => "Date not provided"]);
+        exit;
     }
     $availability = new AvailabilityController();
     $response = $availability->getTime($date);

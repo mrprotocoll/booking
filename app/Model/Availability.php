@@ -37,17 +37,19 @@ class Availability extends Model {
 
     public function getTimeByDate($date): array
     {
-        $result = $this->query("SELECT time FROM {$this->table} WHERE `date` = '$date'");
+        $stmt = $this->prepare("SELECT time FROM {$this->table} WHERE `date` = ?");
+        $stmt->bind_param('s', $date);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-        $availabilities = [];
-        while ($row = $result->fetch_assoc()) {
-            $availabilities[] = json_decode($row['time'], true);
+        if ($row = $result->fetch_assoc()) {
+            return json_decode($row['time'], true);
         }
 
-        return $availabilities;
+        return [];
     }
 
-    public function getDates($date): array
+    public function getDate(): array
     {
         $today = date("Y-m-d");
         $result = $this->query("SELECT date FROM {$this->table} WHERE `date` > '$today'");

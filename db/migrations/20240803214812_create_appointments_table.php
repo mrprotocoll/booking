@@ -34,7 +34,7 @@ final class CreateAppointmentsTable extends AbstractMigration
                 'limit' => 10,
                 'null' => false
             ])
-            ->addColumn('status', 'string', ['default' => 'active'])
+            ->addColumn('status', 'string', ['default' => 'pending'])
             ->addColumn('created_at', 'datetime', ['default' => Literal::from('CURRENT_TIMESTAMP')])
             ->addColumn('updated_at', 'datetime', [
                 'null' => true,
